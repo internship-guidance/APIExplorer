@@ -1,13 +1,74 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { Image } from 'react-native';
+import {
+  createSwitchNavigator,
+  createAppContainer,
+  createDrawerNavigator,
+  createBottomTabNavigator,
+  createStackNavigator
+} from 'react-navigation';
 
-import styles from './styles';
+import CryptoConverter from './CryptoConverter';
+import CryptoNews from './CryptoNews';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.welcome}>Welcome to React Native!</Text>
-      <Text style={styles.instructions}>To get started, edit App.js</Text>
-    </View>
-  );
+//TODO: noņemt settings, importēt bildes caur datoru, nevis no interneta, pārlikt share pie convertera, uzlikt async storage to cryptonews, uzlikt safeArea cryptoNews, sakārtot cryptoExchangeHeading, pull to refresh
+function App() {
+  return <AppContainer />;
 }
+export default App;
+
+const DashboardTabNavigator = createBottomTabNavigator(
+  {
+    CryptoConverter: {
+      screen: CryptoConverter, navigationOptions: {
+        tabBarLabel: 'Cryptocurrency Converter',
+        tabBarIcon: ({ tintColor }) => (
+          <Image style={{ height: 25, width: 25 }}
+            source={require('./assets/menuConverter.png')} />
+        )
+      }
+    },
+    CryptoNews: {
+      screen: CryptoNews, navigationOptions: {
+        tabBarLabel: 'Cryptocurrency News',
+        tabBarIcon: ({ tintColor }) => (
+          <Image style={{ height: 25, width: 25 }}
+            source={require('./assets/menuNews.png')} />
+        )
+      }
+    },
+  },
+  {
+    navigationOptions: ({ navigation }) => {
+      const { routeName } = navigation.state.routes[navigation.state.index];
+      return {
+        headerTitle: routeName
+      };
+    }
+  }
+);
+
+const DashboardStackNavigator = createStackNavigator(
+  {
+    DashboardTabNavigator: DashboardTabNavigator
+  },
+);
+
+const AppDrawerNavigator = createDrawerNavigator({
+  Settings: {
+    screen: DashboardStackNavigator
+  },
+  CryptoConverter: {
+    screen: DashboardStackNavigator
+  },
+  CryptoNews: {
+    screen: DashboardStackNavigator
+  }
+});
+
+const AppSwitchNavigator = createSwitchNavigator({
+  DashboardStackNavigator: { screen: DashboardStackNavigator },
+  Dashboard: { screen: AppDrawerNavigator }
+});
+
+const AppContainer = createAppContainer(AppSwitchNavigator);
